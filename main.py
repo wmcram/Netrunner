@@ -1,15 +1,17 @@
+import traceback
 import tcod
 import copy
 from engine import Engine
 from procgen import generate_dungeon
 import entity_factories
+import color
 
 def main() -> None:
     screen_width = 80
     screen_height = 50
 
     map_width = 80
-    map_height = 45
+    map_height = 43
     
     room_max_size = 10
     room_min_size = 6
@@ -35,6 +37,10 @@ def main() -> None:
     )
     engine.update_fov()
     
+    engine.message_log.add_message(
+        "Hello and welcome, adventurer, to yet another dungeon!", color.welcome_text
+    )
+    
     with tcod.context.new_terminal(
         screen_width, screen_height, tileset=tileset, title="Netrunner", vsync=True
     ) as context:
@@ -44,8 +50,17 @@ def main() -> None:
         #context.sdl_window.fullscreen = True
         
         while True:
-            engine.render(console=root_console, context=context)
-            engine.event_handler.handle_events()
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
+
+            try: 
+                for event in tcod.event.wait():
+                    context.convert_event(event)
+                    engine.event_handler.handle_events(event)
+            except Exception:  
+                traceback.print_exc()
+                engine.message_log.add_message(traceback.format_exc(), color.error)
     
 if __name__ == "__main__":
     main()
