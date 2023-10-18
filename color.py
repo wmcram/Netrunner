@@ -24,3 +24,5 @@ bar_empty = (0x40, 0x10, 0x10)
 
 menu_title = (255, 30, 255)
 menu_text = white
+
+boss_message = red

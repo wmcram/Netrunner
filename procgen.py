@@ -5,6 +5,7 @@ import entity_factories
 import tile_types
 import random
 import tcod
+import color
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -24,9 +25,9 @@ max_monsters_by_floor = [
 
 item_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.nanogauze, 35)],
-    2: [(entity_factories.empgrenade, 10)],
-    4: [(entity_factories.braindos, 5)],
-    6: [(entity_factories.mathogen, 5)],
+    2: [(entity_factories.braindos, 10)],
+    4: [(entity_factories.mathogen, 25), (entity_factories.automakatana, 5)],
+    6: [(entity_factories.empgrenade, 25), (entity_factories.datamail, 15)],
 }
 
 enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
@@ -162,6 +163,18 @@ def generate_dungeon(
         dungeon.elevator_location = center_of_last_room
     
         rooms.append(new_room)
+    return dungeon
+
+def generate_boss_floor(map_width: int, map_height: int, engine: Engine) -> GameMap:
+    player = engine.player
+    dungeon = GameMap(engine, map_width, map_height, entities=[player])
+    boss_room = RectangularRoom(37, 20, 10, 10)
+    dungeon.tiles[boss_room.inner] = tile_types.floor
+    playerpos = (boss_room.center[0], boss_room.center[1] - 3)
+    player.place(*playerpos, dungeon)
+    entity_factories.boss.spawn(dungeon, *boss_room.center)
+    engine.message_log.add_message("CONTRACT: ELIMINATE NETRUNNER", color.boss_message)
+    engine.message_log.add_message('???: "So it was a setup..."', color.white)
     return dungeon
     
     

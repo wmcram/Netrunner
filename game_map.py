@@ -40,7 +40,7 @@ class GameMap:
     
     def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
         for actor in self.actors:
-            if actor.x == x and actor.y == y:
+            if actor.x == x and actor.y == y and actor.is_alive:
                 return actor
         return None
         
@@ -70,7 +70,7 @@ class GameWorld:
         max_rooms: int,
         room_min_size: int,
         room_max_size: int,
-        current_floor: int = 1,
+        current_floor: int = 0,
     ):
         self.engine = engine
         
@@ -85,15 +85,22 @@ class GameWorld:
         self.current_floor = current_floor
         
     def generate_floor(self) -> None:
-        from procgen import generate_dungeon
+        from procgen import generate_dungeon, generate_boss_floor
         
         self.current_floor += 1
-        
-        self.engine.game_map = generate_dungeon(
-            max_rooms=self.max_rooms,
-            room_min_size=self.room_min_size,
-            room_max_size=self.room_max_size,
-            map_width=self.map_width,
-            map_height=self.map_height,
-            engine=self.engine,
-        )
+
+        if self.current_floor == 10:
+            self.engine.game_map = generate_boss_floor(
+                map_width=self.map_width,
+                map_height=self.map_height,
+                engine=self.engine
+            )
+        else:
+            self.engine.game_map = generate_dungeon(
+                max_rooms=self.max_rooms,
+                room_min_size=self.room_min_size,
+                room_max_size=self.room_max_size,
+                map_width=self.map_width,
+                map_height=self.map_height,
+                engine=self.engine,
+            )

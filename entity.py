@@ -14,6 +14,8 @@ if TYPE_CHECKING:
     from components.consumable import Consumable
     from components.inventory import Inventory
     from components.level import Level
+    from components.equippable import Equippable
+    from components.equipment import Equipment
 
 class Entity:
     
@@ -82,7 +84,8 @@ class Actor(Entity):
         ai_cls: Type[BaseAI],
         fighter: Fighter,
         inventory: Inventory,
-        level: Level
+        level: Level,
+        equipment: Equipment,
     ):
         super().__init__(
             x=x,
@@ -101,6 +104,8 @@ class Actor(Entity):
         self.inventory.parent = self
         self.level = level
         self.level.parent = self
+        self.equipment = equipment
+        self.equipment.parent = self
         
     @property
     def is_alive(self) -> bool:
@@ -115,7 +120,8 @@ class Item(Entity):
         char: str = "?",
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        consumable: Consumable,
+        consumable: Optional[Consumable] = None,
+        equippable: Optional[Equippable] = None,
     ):
         super().__init__(
             x=x,
@@ -126,5 +132,10 @@ class Item(Entity):
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
         )
+        
         self.consumable = consumable
-        self.consumable.parent = self
+        self.equippable = equippable
+        
+        if self.consumable: self.consumable.parent = self
+        if self.equippable: self.equippable.parent = self
+        
