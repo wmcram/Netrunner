@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Tuple, Optional
 import color
+from engine import Engine
 from entity import Actor, Entity
 import exceptions
 
@@ -123,3 +124,11 @@ class PickupAction(Action):
 class DropAction(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.drop(self.item)
+
+class AscendAction(Action):
+    def perform(self) -> None:
+        if (self.entity.x, self.entity.y) == self.engine.game_map.elevator_location:
+            self.engine.game_world.generate_floor()
+            self.engine.message_log.add_message("You take the elevator.", color.ascend)
+        else: 
+            raise exceptions.Impossible("No elevator here.")
